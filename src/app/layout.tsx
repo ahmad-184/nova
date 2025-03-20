@@ -1,12 +1,29 @@
 import type { Metadata } from "next";
+import { Inter } from "next/font/google";
+
 import Providers from "@/providers";
+import { applicationDescription, applicationName } from "@/app-confige";
 
 import "./globals.css";
+import { cn } from "@/lib/utils";
+
+const inter = Inter({
+  subsets: ["latin"],
+  fallback: [
+    "-apple-system",
+    "BlinkMacSystemFont",
+    "Segoe UI",
+    "Helvetica Neue",
+    "sans-serif",
+  ],
+});
 
 export const metadata: Metadata = {
-  title: "JStack App",
-  description: "Created using JStack",
-  icons: [{ rel: "icon", url: "/favicon.ico" }],
+  title: applicationName,
+  description: applicationDescription,
+  icons: [
+    { rel: "icon", type: "image/png", sizes: "48x48", url: "/icon?icon.tsx" },
+  ],
 };
 
 export default function RootLayout({
@@ -16,7 +33,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="antialiased">
+      <body className={cn(inter.className, "antialiased")}>
         <Providers>{children}</Providers>
       </body>
     </html>
