@@ -1,7 +1,8 @@
 import { ImageResponse } from "next/og";
+import { ImageResponseOptions } from "next/server";
 
 // Image metadata
-export const size = {
+const options: ImageResponseOptions = {
   width: 32,
   height: 32,
 };
@@ -16,7 +17,7 @@ export default function Icon() {
       <div
         style={{
           fontSize: 24,
-          background: "white",
+          background: "#d6d3d1",
           width: "100%",
           height: "100%",
           display: "flex",
@@ -24,14 +25,12 @@ export default function Icon() {
           justifyContent: "center",
           color: "black",
           borderRadius: "10px",
-          fontWeight: "bold",
+          fontWeight: "bolder",
         }}
       >
         N
       </div>
     ),
-    {
-      ...size,
-    }
+    { ...options }
   );
 }

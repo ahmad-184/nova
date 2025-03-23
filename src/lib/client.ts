@@ -1,6 +1,8 @@
-import type { AppRouter } from "@/server";
 import { createClient } from "jstack";
 
+import type { AppRouter } from "@/server";
+import { env } from "@/env";
+
 export const client = createClient<AppRouter>({
-  baseUrl: "http://localhost:8080/api",
+  baseUrl: `${env.NEXT_PUBLIC_URL}/api`,
 });

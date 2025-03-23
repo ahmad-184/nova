@@ -1,5 +1,6 @@
-import { ReactQueryProviders } from "./react-query";
 import { ThemeProvider } from "./theme-provider";
+
+import { ReactQueryProviders } from "./react-query";
 
 export default function Providers({ children }: { children: React.ReactNode }) {
   return (
