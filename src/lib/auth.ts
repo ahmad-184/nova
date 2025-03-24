@@ -16,6 +16,7 @@ import {
   SESSION_MAX_DURATION_S,
   SESSION_REFRESH_INTERVAL_S,
   VERIFICATION_OTP_EXPIRES_IN_S,
+  VERIFICATION_OTP_LENGTH,
 } from "@/app-config";
 import * as schema from "@/db/schema";
 import { emailSender } from "./email-sender";
@@ -88,7 +89,7 @@ export const auth = betterAuth({
     emailOTP({
       sendVerificationOTP,
       expiresIn: VERIFICATION_OTP_EXPIRES_IN_S,
-      otpLength: 6,
+      otpLength: VERIFICATION_OTP_LENGTH,
     }),
   ],
 });

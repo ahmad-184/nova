@@ -1,8 +1,8 @@
 import { drizzle, NeonHttpDatabase } from "drizzle-orm/neon-http";
 import { neon, NeonQueryFunction } from "@neondatabase/serverless";
 
-import * as schema from "./schema";
 import { env } from "@/env";
+import * as schema from "./schema";
 
 type Database = NeonHttpDatabase<typeof schema> & {
   $client: NeonQueryFunction<false, false>;
