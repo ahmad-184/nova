@@ -9,18 +9,8 @@ import {
 } from "@/app-config";
 
 import { cn } from "@/lib/utils";
-import "@/shared/styles/globals.css";
 
-const inter = Inter({
-  subsets: ["latin"],
-  fallback: [
-    "-apple-system",
-    "BlinkMacSystemFont",
-    "Segoe UI",
-    "Helvetica Neue",
-    "sans-serif",
-  ],
-});
+import "@/shared/styles/globals.css";
 
 export const metadata: Metadata = {
   title: applicationName,
@@ -31,6 +21,19 @@ export const metadata: Metadata = {
   ],
 };
 
+const inter = Inter({
+  subsets: ["latin"],
+  fallback: [
+    "-apple-system",
+    "BlinkMacSystemFont",
+    "Segoe UI",
+    "Helvetica Neue",
+    "sans-serif",
+  ],
+  variable: "--font-inter",
+  display: "swap",
+});
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -38,7 +41,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={cn(inter.className, "antialiased")}>
+      <body className={cn("antialiased")}>
         <Providers>{children}</Providers>
       </body>
     </html>

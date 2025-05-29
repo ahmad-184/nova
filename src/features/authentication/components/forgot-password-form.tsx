@@ -35,9 +35,9 @@ export default function ForgotPasswordForm() {
             </FormItem>
           )}
         />
-        {!!error?.length && (
+        {!!error && (
           <div className="w-full">
-            <p className="text-sm font-medium text-destructive">{error}</p>
+            <p className="text-sm text-destructive">{error.message}</p>
           </div>
         )}
         <div className="w-full">

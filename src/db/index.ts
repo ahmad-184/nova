@@ -1,30 +1,42 @@
-import { drizzle, NeonHttpDatabase } from "drizzle-orm/neon-http";
-import { neon, NeonQueryFunction } from "@neondatabase/serverless";
+import { PostgresJsDatabase, drizzle } from "drizzle-orm/postgres-js";
+import postgres, { type Options } from "postgres";
 
 import { env } from "@/env";
 import * as schema from "./schema";
 
-type Database = NeonHttpDatabase<typeof schema> & {
-  $client: NeonQueryFunction<false, false>;
-};
-
 declare global {
   // eslint-disable-next-line no-var
-  var cachedDrizzle: Database;
+  var cachedDrizzle: PostgresJsDatabase<typeof schema>;
 }
 
-const DATABASE_URL = env.DATABASE_URL;
-let database: Database;
+export const createDatabase = (db_url: string, db_password: string) => {
+  const DATABASE_URL = db_url.replace("[YOUR-PASSWORD]", db_password);
 
-if (env.NODE_ENV === "production") {
-  const sql = neon(DATABASE_URL);
-  database = drizzle(sql, { schema });
-} else {
-  if (!global.cachedDrizzle) {
-    const sql = neon(DATABASE_URL);
-    global.cachedDrizzle = drizzle(sql, { schema });
+  let database: PostgresJsDatabase<typeof schema>;
+  let pg: ReturnType<typeof postgres>;
+
+  const options: Options<any> | undefined = {
+    prepare: false,
+    connect_timeout: 10,
+    idle_timeout: 10000,
+    max: 1,
+  };
+
+  if (env.NODE_ENV === "production") {
+    pg = postgres(DATABASE_URL, options);
+    database = drizzle(pg, { schema });
+  } else {
+    if (!global.cachedDrizzle) {
+      pg = postgres(DATABASE_URL, options);
+      global.cachedDrizzle = drizzle(pg, { schema });
+    }
+    database = global.cachedDrizzle;
   }
-  database = global.cachedDrizzle;
-}
 
-export { database };
+  return { database };
+};
+
+export const { database } = createDatabase(
+  env.SUPABASE_DATABASE_URL,
+  env.SUPABASE_DATABASE_PASSWORD
+);

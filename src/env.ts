@@ -14,10 +14,14 @@ export const env = createEnv({
     EMAIL_SERVER: z.string().min(1),
     EMAIL_SERVER_PORT: z.string().min(1),
     EMAIL_FROM: z.string().min(1),
+    SUPABASE_DATABASE_PASSWORD: z.string().min(1),
+    SUPABASE_DATABASE_URL: z.string().min(1),
   },
   client: {
     NEXT_PUBLIC_BETTER_AUTH_URL: z.string().min(1),
     NEXT_PUBLIC_URL: z.string().min(1),
+    NEXT_PUBLIC_SUPABASE_URL: z.string().min(1),
+    NEXT_PUBLIC_SUPABASE_ANON_KEY: z.string().min(1),
   },
   runtimeEnv: {
     NODE_ENV: process.env.NODE_ENV,
@@ -32,6 +36,10 @@ export const env = createEnv({
     EMAIL_SERVER: process.env.EMAIL_SERVER,
     EMAIL_SERVER_PORT: process.env.EMAIL_SERVER_PORT,
     EMAIL_FROM: process.env.EMAIL_FROM,
+    SUPABASE_DATABASE_PASSWORD: process.env.SUPABASE_DATABASE_PASSWORD,
+    SUPABASE_DATABASE_URL: process.env.SUPABASE_DATABASE_URL,
     NEXT_PUBLIC_URL: process.env.NEXT_PUBLIC_URL,
+    NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
+    NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
   },
 });

@@ -1,18 +1,16 @@
 import { ThemeProvider } from "./theme-provider";
-
-import { ReactQueryProviders } from "./react-query";
+import Toaster from "./toaster";
 
 export default function Providers({ children }: { children: React.ReactNode }) {
   return (
-    <ReactQueryProviders>
-      <ThemeProvider
-        attribute="class"
-        defaultTheme="system"
-        enableSystem
-        disableTransitionOnChange
-      >
-        {children}
-      </ThemeProvider>
-    </ReactQueryProviders>
+    <ThemeProvider
+      attribute="class"
+      defaultTheme="system"
+      enableSystem
+      disableTransitionOnChange
+    >
+      {children}
+      <Toaster />
+    </ThemeProvider>
   );
 }

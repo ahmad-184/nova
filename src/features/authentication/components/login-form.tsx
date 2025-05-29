@@ -1,11 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { CircleAlertIcon } from "lucide-react";
+import { CircleAlertIcon, MailIcon } from "lucide-react";
 
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -21,9 +22,18 @@ import {
   AlertTitle,
 } from "@/shared/components/ui/alert";
 import { useLogin } from "../hooks/use-login";
+import { cn } from "@/lib/utils";
 
 export default function LoginForm() {
-  const { form, error, onSubmit, isLoading, process } = useLogin();
+  const {
+    form,
+    error,
+    onSubmit,
+    isLoading,
+    process,
+    onSendVerificationOtp,
+    sendVerificationOtpLoading,
+  } = useLogin();
 
   return (
     <Form {...form}>
@@ -54,7 +64,7 @@ export default function LoginForm() {
                 <FormLabel>Password</FormLabel>
                 <Link
                   href="/forgot-password"
-                  className="text-sm hover:underline hover:text-blue-500"
+                  className="text-xs hover:underline hover:text-blue-500"
                 >
                   Forgot your password?
                 </Link>
@@ -70,21 +80,33 @@ export default function LoginForm() {
           control={form.control}
           name="rememberMe"
           render={({ field }) => (
-            <FormItem className="flex items-center gap-2">
+            <FormItem
+              className={cn(
+                "flex flex-row items-start space-y-0 rounded-md border p-2 py-3 shadow",
+                !!field.value && "border-blue-700"
+              )}
+            >
               <FormControl>
                 <Checkbox
                   checked={field.value}
                   onCheckedChange={field.onChange}
                 />
               </FormControl>
-              <FormLabel className="text-sm flex-1">Remember me</FormLabel>
+              <FormLabel className="text-sm">
+                <div className="flex flex-col gap-1 leading-none">
+                  <p>Remember me</p>
+                  <FormDescription className="text-xs font-normal">
+                    If unchecked, you will be logged out when browser closed.
+                  </FormDescription>
+                </div>
+              </FormLabel>
               <FormMessage />
             </FormItem>
           )}
         />
-        {!!error?.length && process === "login" && (
+        {!!error && process === "login" && (
           <div className="w-full">
-            <p className="text-sm font-medium text-destructive">{error}</p>
+            <p className="text-sm text-destructive">{error.message}</p>
           </div>
         )}
         {process === "email-verification" && (
@@ -92,9 +114,23 @@ export default function LoginForm() {
             <CircleAlertIcon className="w-4 h-4" />
             <AlertTitle>Email not verified</AlertTitle>
             <AlertDescription>
-              Your account is not verified. Please verify your account by
-              clicking button below. we will send you a verification code to
-              your email address.
+              <div className="mb-2">
+                Your account is not verified. Please verify your account by
+                clicking button below. we will send you a verification code to
+                your email address.
+              </div>
+              <div className="flex-1 flex justify-start">
+                <LoaderButton
+                  isLoading={sendVerificationOtpLoading}
+                  onClick={onSendVerificationOtp}
+                  disabled={sendVerificationOtpLoading}
+                  variant={"outline"}
+                  className="text-neutral-200"
+                >
+                  <MailIcon />
+                  Send Verification Code
+                </LoaderButton>
+              </div>
             </AlertDescription>
           </Alert>
         )}
@@ -104,7 +140,7 @@ export default function LoginForm() {
             isLoading={isLoading}
             disabled={isLoading}
           >
-            {process === "login" ? "Login" : "Send Verification Code"}
+            Login
           </LoaderButton>
         </div>
       </form>

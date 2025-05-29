@@ -1,17 +1,19 @@
-import { useState } from "react";
+import { useMemo } from "react";
 import { useForm } from "react-hook-form";
-import { useMutation } from "@tanstack/react-query";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter, useSearchParams } from "next/navigation";
+import { toast } from "sonner";
 
-import { authClient } from "@/lib/auth-client";
 import { verifyEmailOtpSchema, VerifyEmailOtpSchema } from "../validations";
+import { useVerifyVeridicationOtpMutation } from "../redux/api";
+import { getErrorInfo } from "@/helpers/error";
 
 export const useVerifyEmailOtp = () => {
-  const [error, setError] = useState<string | null>(null);
-
-  const searchParams = useSearchParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const [verifyEmail, { error: verifyEmailError, isLoading }] =
+    useVerifyVeridicationOtpMutation();
 
   const form = useForm<VerifyEmailOtpSchema>({
     resolver: zodResolver(verifyEmailOtpSchema),
@@ -20,35 +22,21 @@ export const useVerifyEmailOtp = () => {
     },
   });
 
-  const { mutate, isPending } = useMutation({
-    mutationKey: ["login"],
-    mutationFn: async (values: VerifyEmailOtpSchema) => {
-      setError(null);
-      const email = searchParams.get("email");
-      if (!email) throw new Error("Please provide an email");
-      const { data, error } = await authClient.emailOtp.verifyEmail({
-        otp: values.otp,
-        email,
-      });
-      if (error) throw new Error(error.message);
-      return data;
-    },
-    onSuccess: res => {
-      setError(null);
-      if (!res.user.emailVerified || res.user.emailVerified === undefined)
-        return setError("Something went wrong");
+  const onSubmit = form.handleSubmit(async values => {
+    const email = searchParams.get("email");
+    if (!email) return toast.warning("Please provide an email");
+    const { data } = await verifyEmail({ email, otp: values.otp });
+    if (data) {
       const redirectUrl = searchParams.get("redirectUrl");
       if (redirectUrl) return router.replace(redirectUrl);
       router.replace("/login");
-    },
-    onError: (error: Error) => {
-      setError(error.message);
-    },
+    }
   });
 
-  const onSubmit = form.handleSubmit(values => {
-    mutate(values);
-  });
+  const error = useMemo(
+    () => getErrorInfo(verifyEmailError),
+    [verifyEmailError]
+  );
 
-  return { form, error, onSubmit, isLoading: isPending };
+  return { form, error, onSubmit, isLoading };
 };

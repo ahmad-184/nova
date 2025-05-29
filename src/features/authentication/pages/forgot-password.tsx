@@ -25,10 +25,7 @@ export default function ForgotPassword() {
       </CardContent>
       <CardFooter>
         <div className="w-full text-center justify-center text-sm">
-          <Link
-            href="/login"
-            className="hover:underline hover:text-blue-500 text-primary underline"
-          >
+          <Link href="/login" className="text-primary hover:underline">
             Back to Login
           </Link>
         </div>

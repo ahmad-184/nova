@@ -17,7 +17,7 @@ export default function SignUp() {
       <CardHeader>
         <CardTitle>Think it. Make it.</CardTitle>
         <CardDescription>
-          Create your <span className="text-primary font-medium">N</span>ova
+          Create your <span className="text-primary font-normal">N</span>ova
           account
         </CardDescription>
       </CardHeader>
@@ -27,12 +27,9 @@ export default function SignUp() {
       </CardContent>
       <CardFooter>
         <div className="w-full text-center justify-center text-sm">
-          Already have an account?{" "}
-          <Link
-            href="/login"
-            className="hover:underline hover:text-blue-500 text-primary underline"
-          >
-            Login
+          <Link href="/login" className="text-primary">
+            Already have an account?{" "}
+            <span className="hover:underline hover:text-blue-500">Login</span>
           </Link>
         </div>
       </CardFooter>

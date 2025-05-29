@@ -31,6 +31,8 @@ export const RESET_PASSWORD_TOKEN_EXPIRES_IN_S = 60 * 10; // 10 min
 export const VERIFICATION_OTP_LENGTH = 6;
 export const VERIFICATION_OTP_EXPIRES_IN_S = 10 * 60; // 10 min
 
+export const USER_REFETCH_INTERVAL = 1 * 60 * 1000; // 1 min in milliseconds
+
 export const afterLoginUrl = `${env.NEXT_PUBLIC_URL}/`;
 
 export const ACCEPTED_IMAGE_FILE_TYPE = [

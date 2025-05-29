@@ -1,20 +1,26 @@
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useMemo } from "react";
 import { useForm } from "react-hook-form";
-import { useMutation } from "@tanstack/react-query";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-import { authClient } from "@/lib/auth-client";
-import { afterLoginUrl } from "@/app-config";
-import { loginSchema, LoginSchema } from "../validations";
+import { getErrorInfo } from "@/helpers/error";
+import { useAppDispatch, useAppSelector } from "../redux/store";
+import { useLoginMutation, useSendVerificationOtpMutation } from "../redux/api";
+import { changeLoginProcessAction } from "../redux/slices/auth.slice";
+import { emailSchema, loginSchema, LoginSchema } from "../validations";
 
 export const useLogin = () => {
-  const [error, setError] = useState<string | null>(null);
-  const [process, setProcess] = useState<"login" | "email-verification">(
-    "login"
-  );
-
   const router = useRouter();
+
+  const dispatch = useAppDispatch();
+
+  const loginProcess = useAppSelector(store => store.auth.loginProcess);
+
+  const [login, { isLoading, error: loginError }] = useLoginMutation();
+  const [
+    sendVerificationOtp,
+    { isLoading: verificationLoading, error: sendVerificationOtpError },
+  ] = useSendVerificationOtpMutation();
 
   const form = useForm<LoginSchema>({
     resolver: zodResolver(loginSchema),
@@ -25,53 +31,39 @@ export const useLogin = () => {
     },
   });
 
-  const { mutate, isPending } = useMutation({
-    mutationKey: [process],
-    mutationFn: async (values: LoginSchema) => {
-      setError(null);
+  const onSubmit = form.handleSubmit(values => {
+    login(values);
+  });
 
-      if (process === "email-verification") {
-        const { data, error } = await authClient.emailOtp.sendVerificationOtp({
-          email: values.email,
-          type: "email-verification",
-          fetchOptions: {
-            onSuccess: () => {
-              router.push(`/verify-email?email=${values.email}`);
-            },
-          },
-        });
-        if (error || !data || !data.success)
-          throw new Error(error?.message ?? "something went wrong");
-        return data;
-      }
+  const onSendVerificationOtp = async () => {
+    const value = form.getValues("email");
+    const { success, data: email, error } = emailSchema.safeParse(value);
 
-      const { data, error } = await authClient.signIn.email({
-        email: values.email,
-        password: values.password,
-        rememberMe: values.rememberMe,
-        callbackURL: afterLoginUrl,
+    if (!success || !email)
+      form.setError("email", {
+        message: error?.flatten().formErrors[0] ?? "Invalid email address",
       });
 
-      if (error && error?.code === "EMAIL_NOT_VERIFIED") {
-        setProcess("email-verification");
-        return;
-      }
+    const { data: result } = await sendVerificationOtp({ email: email! });
 
-      if (error) throw new Error(error.message);
+    if (result?.email) {
+      dispatch(changeLoginProcessAction("login"));
+      return router.push(`/verify-email?email=${result.email}`);
+    }
+  };
 
-      return data;
-    },
-    onSuccess: () => {
-      setError(null);
-    },
-    onError: (error: Error) => {
-      setError(error.message);
-    },
-  });
+  const error = useMemo(() => {
+    if (loginError) return getErrorInfo(loginError);
+    if (sendVerificationOtpError) return getErrorInfo(sendVerificationOtpError);
+  }, [loginError, sendVerificationOtpError]);
 
-  const onSubmit = form.handleSubmit(values => {
-    mutate(values);
-  });
-
-  return { form, error, onSubmit, isLoading: isPending, process };
+  return {
+    form,
+    error,
+    onSubmit,
+    isLoading: isLoading,
+    sendVerificationOtpLoading: verificationLoading,
+    onSendVerificationOtp,
+    process: loginProcess,
+  };
 };

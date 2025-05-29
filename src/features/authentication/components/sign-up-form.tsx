@@ -110,9 +110,9 @@ export default function SignUpForm() {
             </FormItem>
           )}
         />
-        {!!error?.length && (
+        {!!error && (
           <div className="w-full">
-            <p className="text-sm font-medium text-destructive">{error}</p>
+            <p className="text-sm text-destructive">{error.message}</p>
           </div>
         )}
         <div className="w-full">
@@ -121,7 +121,8 @@ export default function SignUpForm() {
             isLoading={isLoading}
             disabled={isLoading}
           >
-            {process === "sign-up" ? "Sign Up" : "Sending Verification Code"}
+            {process === "sign-up" && "Sign up"}
+            {process === "email-verification" && "Sending Verification Code"}
           </LoaderButton>
         </div>
       </form>

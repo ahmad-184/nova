@@ -5,8 +5,13 @@ import {
 } from "@/app-config";
 import { z } from "zod";
 
+export const emailSchema = z
+  .string()
+  .email({ message: "Invalid email address" })
+  .min(1);
+
 export const loginSchema = z.object({
-  email: z.string().email({ message: "Invalid email address" }),
+  email: emailSchema,
   password: z
     .string()
     .min(MIN_PASSWORD_LENGTH, {
@@ -19,7 +24,7 @@ export const loginSchema = z.object({
 });
 export type LoginSchema = z.infer<typeof loginSchema>;
 
-const otpSchema = z
+export const otpSchema = z
   .string()
   .min(VERIFICATION_OTP_LENGTH, {
     message: `Verification code must be ${VERIFICATION_OTP_LENGTH} characters long`,
