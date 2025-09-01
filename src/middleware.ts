@@ -11,19 +11,19 @@ const publicRoutes = [
 ];
 
 export async function middleware(request: NextRequest) {
-  if (publicRoutes.some(route => request.nextUrl.pathname.startsWith(route))) {
-    return NextResponse.next();
-  }
+  // if (publicRoutes.some(route => request.nextUrl.pathname.startsWith(route))) {
+  //   return NextResponse.next();
+  // }
 
-  const sessionCookie = getSessionCookie(request, {
-    cookieName: "session_token",
-    cookiePrefix: "better-auth",
-    useSecureCookies: false,
-  });
+  // const sessionCookie = getSessionCookie(request, {
+  //   cookieName: "session_token",
+  //   cookiePrefix: "better-auth",
+  //   useSecureCookies: false,
+  // });
 
-  if (!sessionCookie) {
-    return NextResponse.redirect(new URL("/login", request.url));
-  }
+  // if (!sessionCookie) {
+  //   return NextResponse.redirect(new URL("/login", request.url));
+  // }
 
   return NextResponse.next();
 }
