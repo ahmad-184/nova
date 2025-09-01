@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSessionCookie } from "better-auth/cookies";
+import { env } from "./env";
 
 const publicRoutes = [
   "/login",
@@ -11,19 +12,19 @@ const publicRoutes = [
 ];
 
 export async function middleware(request: NextRequest) {
-  // if (publicRoutes.some(route => request.nextUrl.pathname.startsWith(route))) {
-  //   return NextResponse.next();
-  // }
+  if (publicRoutes.some(route => request.nextUrl.pathname.startsWith(route))) {
+    return NextResponse.next();
+  }
 
-  // const sessionCookie = getSessionCookie(request, {
-  //   cookieName: "session_token",
-  //   cookiePrefix: "better-auth",
-  //   useSecureCookies: false,
-  // });
+  const sessionCookie = getSessionCookie(request, {
+    cookieName: "session_token",
+    cookiePrefix: "better-auth",
+    useSecureCookies: env.NODE_ENV === "development" ? false : true,
+  });
 
-  // if (!sessionCookie) {
-  //   return NextResponse.redirect(new URL("/login", request.url));
-  // }
+  if (!sessionCookie) {
+    return NextResponse.redirect(new URL("/login", request.url));
+  }
 
   return NextResponse.next();
 }
