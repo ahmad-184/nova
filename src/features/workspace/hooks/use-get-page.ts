@@ -1,26 +1,19 @@
 "use client";
 
 import { useMemo } from "react";
-import { createSelector } from "@reduxjs/toolkit";
 
 import { getErrorInfo } from "@/helpers/error";
-import {
-  PagesApiStateType,
-  useGetWorkspacePagesQuery,
-} from "../redux/slices/page/api";
-import { PageType } from "@/shared/type";
+import { useGetWorkspacePagesQuery } from "../redux/slices/page/api";
+import { selectPageSelector } from "../redux/slices/page/slice";
 
 export default function useGetPage(
   workspaceId: string | null,
   pageId: string | null
 ) {
-  const selectPageSelector = useMemo(() => {
-    return createSelector(
-      res => res as PagesApiStateType,
-      (_, id) => id,
-      (res: PagesApiStateType, id: string) => res?.entities[id] ?? undefined
-    );
-  }, []);
+  const selectPageById = useMemo(
+    () => selectPageSelector(pageId ?? ""),
+    [pageId]
+  );
 
   const {
     page,
@@ -34,7 +27,7 @@ export default function useGetPage(
       ),
       selectFromResult: result => ({
         ...result,
-        page: selectPageSelector(result.data, pageId) as PageType,
+        page: selectPageById(result.data),
       }),
     }
   );
@@ -42,7 +35,7 @@ export default function useGetPage(
   const error = useMemo(() => getErrorInfo(queryError), [queryError]);
 
   return {
-    page,
+    data: page,
     loading,
     error,
   };

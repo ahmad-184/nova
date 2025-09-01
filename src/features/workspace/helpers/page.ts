@@ -2,7 +2,7 @@ import Cookies from "js-cookie";
 
 import { fileIcon } from "@/icons/file-icon";
 import { PageType } from "@/shared/type";
-import { pagesAdaptor, pagesApiSlice } from "../redux/slices/page/api";
+import { pagesApiSlice } from "../redux/slices/page/api";
 import { AppDispatch } from "../redux/store";
 import {
   setPrivateListAction,
@@ -17,7 +17,7 @@ export const changePageUrl = (pageId: string) => {
   window.history.pushState(null, "", url);
 };
 
-export const savePageIdOnCookie = (pageId: string, workspaceId: string) => {
+export const savePageIdInCookie = (pageId: string, workspaceId: string) => {
   Cookies.set(`active_page_${workspaceId}`, pageId, {
     path: "/",
     secure: true,
@@ -90,13 +90,10 @@ export const updatePageOptimistic = ({
     "getWorkspacePages",
     { workspaceId },
     draft => {
-      Object.assign(
-        draft,
-        pagesAdaptor.updateOne(draft, {
-          id,
-          changes: { ...values },
-        })
-      );
+      const page = draft.find(e => e.id === id);
+      if (page) {
+        Object.assign(page, values);
+      }
     }
   );
 
@@ -116,16 +113,12 @@ export const updateManyPageOptimistic = ({
     "getWorkspacePages",
     { workspaceId },
     draft => {
-      Object.assign(
-        draft,
-        pagesAdaptor.updateMany(
-          draft,
-          data.map(e => ({
-            id: e.id,
-            changes: { ...e.value },
-          }))
-        )
-      );
+      const updates = new Map(data.map(({ id, value }) => [id, value]));
+
+      draft.forEach(page => {
+        const value = updates.get(page.id);
+        if (value) Object.assign(page, value);
+      });
     }
   );
 
@@ -142,7 +135,7 @@ export const createPageOptimistic = ({
     "getWorkspacePages",
     { workspaceId },
     draft => {
-      Object.assign(draft, pagesAdaptor.addOne(draft, { ...values }));
+      draft.push(values);
     }
   );
 
@@ -159,7 +152,8 @@ export const deletePageOptimistic = ({
     "getWorkspacePages",
     { workspaceId },
     draft => {
-      Object.assign(draft, pagesAdaptor.removeOne(draft, id));
+      const index = draft.findIndex(e => e.id === id);
+      if (index !== -1) draft.splice(index, 1);
     }
   );
 
@@ -176,7 +170,10 @@ export const deleteManyPageOptimistic = ({
     "getWorkspacePages",
     { workspaceId },
     draft => {
-      Object.assign(draft, pagesAdaptor.removeMany(draft, ids));
+      ids.forEach(id => {
+        const index = draft.findIndex(e => e.id === id);
+        if (index !== -1) draft.splice(index, 1);
+      });
     }
   );
 

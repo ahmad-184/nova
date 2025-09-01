@@ -7,7 +7,7 @@ import {
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
-import { useUser } from "@/features/workspace/hooks/use-user";
+import useCurrentUser from "@/features/workspace/hooks/use-current-user";
 import { useWorkspaces } from "@/features/workspace/providers/workspace-provider";
 import { Button, buttonVariants } from "@/shared/components/ui/button";
 import { Separator } from "@/shared/components/ui/separator";
@@ -35,7 +35,7 @@ export default function SidebarSwitchContent({ toggleOpen }: Props) {
   const { workspaces } = useGetWorkspaces();
   const { onSwitchWorkspace } = useWorkspaces();
 
-  const { user } = useUser();
+  const { user } = useCurrentUser();
 
   const [hoveredWorkspace, setHoveredWorkspace] = useState("");
 

@@ -1,7 +1,5 @@
 import "server-only";
 
-import { neon } from "@neondatabase/serverless";
-import { drizzle } from "drizzle-orm/neon-http";
 import { env } from "hono/adapter";
 import { jstack } from "jstack";
 

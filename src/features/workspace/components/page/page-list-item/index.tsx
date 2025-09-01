@@ -1,4 +1,4 @@
-import { memo, useState } from "react";
+import { memo, useMemo, useState } from "react";
 import { ChevronRightIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -11,6 +11,7 @@ import { Button } from "@/shared/components/ui/button";
 import { NestedList } from "@/features/workspace/utils/nest-pages";
 import useGetPage from "@/features/workspace/hooks/use-get-page";
 import PageIcon from "../page-icon";
+import { useAppSelector } from "@/features/workspace/redux/store";
 
 type Props = {
   workspaceId: string | null;
@@ -27,9 +28,11 @@ const PageListItem = ({
   page,
   onClick,
 }: Props) => {
+  const editingState = useAppSelector(store => store.page.editingState);
+
   const [isListOpen, setIsListOpen] = useState(false);
 
-  const { page: data } = useGetPage(workspaceId, page.id);
+  const { data } = useGetPage(workspaceId, page.id);
 
   const toggleList = () => {
     setIsListOpen(prev => !prev);
@@ -37,6 +40,22 @@ const PageListItem = ({
 
   const isThereChildrens = Boolean(!!isListOpen && !!page.children.length);
   const noChildrens = Boolean(!!isListOpen && !page.children.length);
+
+  const isPageEditing = Boolean(
+    editingState !== undefined && editingState?.id === page.id
+  );
+
+  const pageName = useMemo(() => {
+    if (isPageEditing && editingState?.name) return editingState.name;
+    return data?.name ?? "";
+  }, [editingState, data]);
+
+  const pageIcon = useMemo(() => {
+    if (isPageEditing && editingState?.icon) return editingState.icon;
+    return data?.icon ?? "";
+  }, [editingState, data]);
+
+  if (!data) return null;
 
   return (
     <SidebarMenu className="gap-[2px]">
@@ -79,10 +98,15 @@ const PageListItem = ({
                 </Button>
               </div>
               <div className="pr-1">
-                <PageIcon page={data} />
+                <PageIcon
+                  page={{
+                    name: pageName,
+                    icon: pageIcon,
+                  }}
+                />
               </div>
               <span className="text-sm font-[400] select-none truncate">
-                {data?.name?.length ? data.name : "New page"}
+                {pageName?.length ? pageName : "New page"}
               </span>
             </div>
           </div>

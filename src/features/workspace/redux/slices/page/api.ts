@@ -1,5 +1,3 @@
-import { createEntityAdapter, type EntityState } from "@reduxjs/toolkit";
-
 import { client } from "@/lib/client";
 import { PageInsert } from "@/db/schema";
 import { PageType, PageUpdate } from "@/shared/type";
@@ -17,13 +15,7 @@ import {
 import { api } from "../../api";
 import { RootState } from "../../store";
 
-export type PagesApiStateType = EntityState<PageType, string>;
-
-export const pagesAdaptor = createEntityAdapter({
-  selectId: (data: PageType) => data.id,
-});
-
-export const pagesInitialState = pagesAdaptor.getInitialState();
+export type PagesApiStateType = PageType[];
 
 export const pagesApiSlice = api.injectEndpoints({
   endpoints: builder => ({
@@ -38,25 +30,21 @@ export const pagesApiSlice = api.injectEndpoints({
             workspaceId: workspaceId,
           });
           const result = await response.json();
-          const res = pagesAdaptor.setAll(
-            pagesInitialState,
-            result.sort(
+          return {
+            data: result.sort(
               (a, b) =>
                 new Date(a.createdAt).getTime() -
                 new Date(b.createdAt).getTime()
-            )
-          );
-          return {
-            data: res,
+            ),
           };
         } catch (error) {
           return returnCustomApiError(error);
         }
       },
       providesTags: (result, _, args) =>
-        result && result.ids
+        !!result?.length
           ? [
-              ...result.ids.map(id => ({
+              ...result.map(({ id }) => ({
                 type: "PAGES" as const,
                 workspacId: args.workspaceId,
                 id,
@@ -141,12 +129,8 @@ export const pagesApiSlice = api.injectEndpoints({
               workspaceId: values.workspaceId,
             })(state);
 
-          if (pagesData?.ids.length)
-            setPagesList(
-              dispatch,
-              Object.values(pagesData.entities),
-              state.page.favoritePagesIds
-            );
+          if (pagesData?.length)
+            setPagesList(dispatch, pagesData, state.page.favoritePagesIds);
         }
 
         try {
@@ -194,12 +178,8 @@ export const pagesApiSlice = api.injectEndpoints({
               workspaceId: values.workspaceId,
             })(state);
 
-          if (pagesData?.ids.length)
-            setPagesList(
-              dispatch,
-              Object.values(pagesData.entities),
-              state.page.favoritePagesIds
-            );
+          if (pagesData?.length)
+            setPagesList(dispatch, pagesData, state.page.favoritePagesIds);
         }
 
         try {
@@ -238,7 +218,7 @@ export const pagesApiSlice = api.injectEndpoints({
 
         const childrensOfThePage = getChildrenIdsOfPage(
           values.id,
-          Object.values(pagesData?.entities || {}) || []
+          pagesData || []
         );
 
         const patchResult1 = dispatch(
@@ -296,10 +276,7 @@ export const pagesApiSlice = api.injectEndpoints({
           })(state);
 
         for (const id of values.ids) {
-          const childrenIds = getChildrenIdsOfPage(
-            id,
-            Object.values(pagesData?.entities || {}) || []
-          );
+          const childrenIds = getChildrenIdsOfPage(id, pagesData || []);
 
           const patchResult1 = dispatch(
             deletePageOptimistic({

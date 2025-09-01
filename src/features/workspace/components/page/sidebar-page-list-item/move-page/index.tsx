@@ -96,7 +96,7 @@ export default function MovePage({ isParent, onClose, page }: Props) {
 
   const searchedPages = useMemo(() => {
     if (!data) return [];
-    const filtered = Object.values(data.entities)
+    const filtered = data
       .map(e => e)
       .filter(
         e =>
@@ -110,7 +110,7 @@ export default function MovePage({ isParent, onClose, page }: Props) {
   }, [data, searchInput]);
 
   const defaultPagesList = useMemo(() => {
-    const filtered = Object.values(data.entities)
+    const filtered = data
       .map(e => e)
       .filter(e => e.id !== page.id && !e.inTrash);
     const clonedData = JSON.parse(JSON.stringify(filtered)) as PageType[];
@@ -313,7 +313,9 @@ type SinglePageItemProps = {
 };
 
 function SinglePageItem({ pageId, workspaceId, onClick }: SinglePageItemProps) {
-  const { page: data } = useGetPage(workspaceId, pageId);
+  const { data: page } = useGetPage(workspaceId, pageId);
+
+  if (!page) return null;
 
   return (
     <SidebarMenuItem
@@ -339,10 +341,10 @@ function SinglePageItem({ pageId, workspaceId, onClick }: SinglePageItemProps) {
         >
           <div className="flex-1 truncate flex gap-[2px] items-center">
             <div className="pr-1 pl-1">
-              <PageIcon page={data} />
+              <PageIcon page={page} />
             </div>
             <span className="text-sm font-[400] select-none truncate">
-              {data?.name?.length ? data.name : "New page"}
+              {page?.name?.length ? page.name : "New page"}
             </span>
           </div>
         </div>

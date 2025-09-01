@@ -14,22 +14,25 @@ import {
   getPageCollaboratorByWorkspaceIdUserIdUseCase,
 } from "@/use-cases/pages";
 import { PageCollaborator, WorkspaceMember } from "@/db/schema";
-import { getActivePageId, getActiveWorkspaceId } from "./utils";
+import {
+  getCurrentPageIdFromCookie,
+  getCurrentWorkspaceIdFromCookie,
+} from "./utils";
 
 export default async function Page() {
   const user = await getCurrentUser();
   if (!user || !user.emailVerified) return redirect("/login");
 
-  const activeWorkspaceId = await getActiveWorkspaceId();
-  let activePageId = await getActivePageId(activeWorkspaceId);
+  const currentWorkspaceId = await getCurrentWorkspaceIdFromCookie();
+  let currentPageId = await getCurrentPageIdFromCookie(currentWorkspaceId);
 
   let workspaceMember: WorkspaceMember | undefined = undefined;
   let pageCollaborator: PageCollaborator | undefined = undefined;
 
-  if (activeWorkspaceId) {
+  if (currentWorkspaceId) {
     workspaceMember = await getWorkspaceMemberByUserIdWorkspaceIdUseCase(
       user.id,
-      activeWorkspaceId
+      currentWorkspaceId
     );
   }
 
@@ -54,9 +57,9 @@ export default async function Page() {
     }
   }
 
-  if (activePageId) {
+  if (currentPageId) {
     pageCollaborator = await getPageCollaboratorByPageIdUserIdUseCase(
-      activePageId,
+      currentPageId,
       user.id
     );
 
@@ -70,7 +73,7 @@ export default async function Page() {
       );
   }
 
-  if (!activePageId) {
+  if (!currentPageId) {
     pageCollaborator = await getPageCollaboratorByWorkspaceIdUserIdUseCase(
       workspaceMember.workspaceId,
       user.id
@@ -106,7 +109,7 @@ export default async function Page() {
 
   if (!pageCollaborator) throw new Error("What the hell is happening here? 😩");
 
-  if (pageCollaborator.workspaceId !== activeWorkspaceId)
+  if (pageCollaborator.workspaceId !== currentWorkspaceId)
     return redirect(
       `/${pageCollaborator.pageId}?set_active_workspace=${pageCollaborator.workspaceId}`
     );

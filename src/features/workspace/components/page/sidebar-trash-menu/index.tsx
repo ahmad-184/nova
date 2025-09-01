@@ -24,13 +24,13 @@ export default function SidebarTrashMenu() {
 
   const pages = useMemo(() => {
     if (search.length) {
-      return Object.values(allPages.entities)
+      return allPages
         .filter(e => !!e.inTrash)
         .filter(e =>
           (e.name ?? "New page").toLowerCase().includes(search.toLowerCase())
         );
     }
-    return Object.values(allPages.entities).filter(e => !!e.inTrash);
+    return allPages.filter(e => !!e.inTrash);
   }, [allPages, inTrashPages, search]);
 
   if (!activeWorkspaceId) return null;

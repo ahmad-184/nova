@@ -1,13 +1,19 @@
 "use client";
 
 import { usePathname, useRouter } from "next/navigation";
-import { createContext, useCallback, useContext, useEffect } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+} from "react";
 import { validate } from "uuid";
 
 import { extractUUID } from "@/utils/uuid";
 import {
   changePageUrl,
-  savePageIdOnCookie,
+  savePageIdInCookie,
   setPagesList,
 } from "../helpers/page";
 import useGetPages from "../hooks/use-get-pages";
@@ -50,40 +56,36 @@ export default function PageContextProvider({ children }: Props) {
   const favoritePagesIds = useAppSelector(store => store.page.favoritePagesIds);
   const inTrashPages = useAppSelector(store => store.page.inTrashPages);
   const activePageId = useAppSelector(store => store.page.activePageId);
+  const editingState = useAppSelector(store => store.page.editingState);
 
   const dispatch = useAppDispatch();
 
-  const { data, loading } = useGetPages(activeWorkspaceId);
+  const {
+    data: pages,
+    ids: pagesIds,
+    loading,
+  } = useGetPages(activeWorkspaceId);
 
-  const { page: dataForActivePage } = useGetPage(
-    activeWorkspaceId,
-    activePageId
-  );
+  const { data: activePage } = useGetPage(activeWorkspaceId, activePageId);
 
   const switchPage = useCallback((pageId: string) => {
     changePageUrl(pageId);
   }, []);
 
   useEffect(() => {
-    if (
-      !!data.ids.length ||
-      !!inTrashPages.length ||
-      !!favoritePagesIds.length
-    ) {
-      setPagesList(dispatch, Object.values(data.entities), favoritePagesIds);
+    if (!!pages.length || !!inTrashPages.length || !!favoritePagesIds.length) {
+      setPagesList(dispatch, pages, favoritePagesIds);
     }
-  }, [data.ids, inTrashPages, favoritePagesIds]);
+  }, [pagesIds, inTrashPages, favoritePagesIds]);
 
   useEffect(() => {
-    if (!data.ids.length) return;
-    const pagesInTrashIds = Object.values(data.entities)
-      .filter(e => e.inTrash)
-      .map(e => e.id);
+    if (!pages.length) return;
+    const pagesInTrashIds = pages.filter(e => e.inTrash).map(e => e.id);
     if (!pagesInTrashIds.length) return;
     dispatch(addToTrashAction(pagesInTrashIds));
-  }, [data.ids]);
+  }, [pagesIds]);
 
-  const changeWindowTabDetail = useCallback((data: PageType) => {
+  const updateTabInfo = useCallback((data: Pick<PageType, "name" | "icon">) => {
     if (!data) return;
 
     const link =
@@ -103,18 +105,28 @@ export default function PageContextProvider({ children }: Props) {
   }, []);
 
   useEffect(() => {
-    if (!dataForActivePage) return;
-    changeWindowTabDetail(dataForActivePage);
-    dispatch(setActivePageAction(dataForActivePage));
-  }, [dataForActivePage]);
+    if (!activePage) return;
+    updateTabInfo(activePage);
+    dispatch(setActivePageAction(activePage));
+  }, [activePage]);
+
+  useEffect(() => {
+    if (editingState !== undefined && editingState.id === activePage?.id) {
+      updateTabInfo({
+        icon: editingState.icon ?? activePage?.icon ?? "",
+        name: editingState.name ?? activePage?.name ?? "",
+      });
+    }
+  }, [activePage, editingState]);
 
   useEffect(() => {
     const pageId = extractUUID(pathname.replaceAll("/", " "));
     if (!pageId || !activeWorkspaceId) return;
     if (!validate(pageId)) router.replace("/");
-    if (data.entities[pageId]) dispatch(setActivePageIdAction(pageId));
-    savePageIdOnCookie(pageId, activeWorkspaceId);
-  }, [pathname, activeWorkspaceId, data.ids]);
+    if (pagesIds.find(e => e === pageId))
+      dispatch(setActivePageIdAction(pageId));
+    savePageIdInCookie(pageId, activeWorkspaceId);
+  }, [pathname, activeWorkspaceId, pagesIds]);
 
   return (
     <Context.Provider

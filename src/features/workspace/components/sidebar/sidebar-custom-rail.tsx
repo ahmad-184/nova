@@ -10,7 +10,7 @@ import {
 } from "@/shared/components/ui/tooltip";
 
 export default function SidebarCustomRail() {
-  const [cursorY, setCursorY] = useState(0);
+  // const [cursorY, setCursorY] = useState(0);
 
   const { isDraggingRail } = useSidebar();
 
@@ -19,18 +19,18 @@ export default function SidebarCustomRail() {
       <TooltipTrigger asChild>
         <SidebarRail
           onMouseEnter={e => {
-            setCursorY(e.clientY - 373);
+            // getMouseY();
           }}
           enableDrag={true}
         />
       </TooltipTrigger>
       <TooltipContent
         side="right"
-        style={{
-          position: "fixed",
-          top: cursorY,
-          transform: "translateY(-50%)",
-        }}
+        // style={{
+        //   position: "fixed",
+        //   top: 0,
+        //   transform: "translateY(-50%)",
+        // }}
         className="w-[134px]"
         align="center"
         sideOffset={0}

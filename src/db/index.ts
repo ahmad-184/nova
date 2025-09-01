@@ -37,6 +37,6 @@ export const createDatabase = (db_url: string, db_password: string) => {
 };
 
 export const { database } = createDatabase(
-  env.SUPABASE_DATABASE_URL,
+  env.DATABASE_URL,
   env.SUPABASE_DATABASE_PASSWORD
 );

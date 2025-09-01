@@ -14,7 +14,7 @@ import {
   AlertDialogCancel,
 } from "@/shared/components/ui/alert-dialog";
 import LoaderButton from "@/shared/components/loader-button";
-import { useUser } from "../../hooks/use-user";
+import useCurrentUser from "../../hooks/use-current-user";
 
 type Props = {
   children: React.ReactNode;
@@ -25,7 +25,7 @@ export default function SignOutModal({ children, className }: Props) {
   const [isOpen, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const { signOut } = useUser();
+  const { signOut } = useCurrentUser();
 
   return (
     <AlertDialog open={isOpen} onOpenChange={setOpen}>

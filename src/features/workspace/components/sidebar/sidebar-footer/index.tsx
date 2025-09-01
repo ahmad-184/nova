@@ -3,7 +3,7 @@
 import { UserRoundPlusIcon } from "lucide-react";
 
 import useGetWorkspaces from "@/features/workspace/hooks/use-get-workspaces";
-import { useUser } from "@/features/workspace/hooks/use-user";
+import useCurrentUser from "@/features/workspace/hooks/use-current-user";
 import {
   SidebarMenu,
   SidebarMenuButton,
@@ -12,7 +12,7 @@ import {
 
 export default function SidebarFooter() {
   const { loading } = useGetWorkspaces();
-  const { loading: userLoading } = useUser();
+  const { loading: userLoading } = useCurrentUser();
 
   if (loading || userLoading) return null;
 
@@ -28,7 +28,7 @@ export default function SidebarFooter() {
             <span
               className="text-muted-foreground select-none font-normal"
               style={{
-                fontFamily: "SegoeUI",
+                fontFamily: "SegoeUI !important",
               }}
             >
               Invite member

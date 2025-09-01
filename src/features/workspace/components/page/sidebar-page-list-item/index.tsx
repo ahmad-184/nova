@@ -62,10 +62,11 @@ const SidebarPageItem = ({ page, childrenIdx = 0, listType }: Props) => {
   );
   const activePageId = useAppSelector(store => store.page.activePageId);
   const favoritePagesIds = useAppSelector(store => store.page.favoritePagesIds);
+  const editingState = useAppSelector(store => store.page.editingState);
 
   const dispatch = useAppDispatch();
 
-  const { page: data } = useGetPage(activeWorkspaceId, page.id);
+  const { data: pageData } = useGetPage(activeWorkspaceId, page.id);
   const { data: allPages } = useGetPages(activeWorkspaceId);
 
   const { switchPage } = usePages();
@@ -89,10 +90,7 @@ const SidebarPageItem = ({ page, childrenIdx = 0, listType }: Props) => {
   };
 
   const toggleFavorite = () => {
-    const pageChildrenIds = getChildrenIdsOfPage(
-      page.id,
-      Object.values(allPages.entities)
-    );
+    const pageChildrenIds = getChildrenIdsOfPage(page.id, allPages);
     if (isFavorite) {
       dispatch(removeFromFavoritesAction([page.id, ...pageChildrenIds]));
     } else {
@@ -118,7 +116,7 @@ const SidebarPageItem = ({ page, childrenIdx = 0, listType }: Props) => {
 
   const isFavorite = useMemo(() => {
     return Boolean(favoritePagesIds.find(e => e === page.id) ?? false);
-  }, [data, favoritePagesIds]);
+  }, [pageData, favoritePagesIds]);
 
   const isActive = Boolean(activePageId === page.id);
   const isParent = Boolean(!page.parentPageId);
@@ -149,6 +147,22 @@ const SidebarPageItem = ({ page, childrenIdx = 0, listType }: Props) => {
     setIsEditPageOpen(false);
   };
 
+  const isPageEditing = Boolean(
+    editingState !== undefined && editingState?.id === page.id
+  );
+
+  const pageName = useMemo(() => {
+    if (isPageEditing && editingState?.name) return editingState.name;
+    return pageData?.name ?? "";
+  }, [editingState, pageData]);
+
+  const pageIcon = useMemo(() => {
+    if (isPageEditing && editingState?.icon) return editingState.icon;
+    return pageData?.icon ?? "";
+  }, [editingState, pageData]);
+
+  if (!pageData) return null;
+
   return (
     <SidebarMenu className="gap-[2px]">
       <DropdownMenu modal open={isMenuOpen} onOpenChange={setIsMenuOpen}>
@@ -163,7 +177,7 @@ const SidebarPageItem = ({ page, childrenIdx = 0, listType }: Props) => {
               >
                 <SidebarMenuButton
                   asChild
-                  onClick={event => {
+                  onMouseDown={event => {
                     event.stopPropagation();
                     handleSwitchPage();
                   }}
@@ -178,17 +192,17 @@ const SidebarPageItem = ({ page, childrenIdx = 0, listType }: Props) => {
                   >
                     <div className="flex-1 truncate flex gap-1.5 items-center">
                       <div>
-                        {!!data?.icon && (
+                        {!!pageData?.icon && (
                           <OpenListArrow
-                            icon={data?.icon || ""}
-                            name={data?.name || ""}
+                            icon={pageIcon}
+                            name={pageName}
                             isOpen={isListOpen}
                             toggleList={toggleList}
                           />
                         )}
                       </div>
                       <span className="text-sm font-[400] select-none truncate">
-                        {data?.name?.length ? data?.name : "New page"}
+                        {pageName?.length ? pageName : "New page"}
                       </span>
                     </div>
                     <HiddenButtons
@@ -214,7 +228,7 @@ const SidebarPageItem = ({ page, childrenIdx = 0, listType }: Props) => {
             <MenuActions
               isFavorite={isFavorite}
               toggleFavorite={toggleFavorite}
-              page={data}
+              page={pageData}
               toggleMovePage={openMovePage}
               toggleEditPage={toggleEditPage}
               showMovePage={showMovePage}
@@ -236,7 +250,7 @@ const SidebarPageItem = ({ page, childrenIdx = 0, listType }: Props) => {
                 <MovePage
                   isParent={isParent}
                   onClose={openMovePage}
-                  page={data}
+                  page={pageData}
                 />
               </PopoverContent>
             )}
@@ -247,7 +261,14 @@ const SidebarPageItem = ({ page, childrenIdx = 0, listType }: Props) => {
                 collisionPadding={10}
                 onOpenAutoFocus={e => e.preventDefault()}
               >
-                <FloatingPageInfoEdit page={data} open={isEditPageOpen} />
+                <FloatingPageInfoEdit
+                  page={{
+                    name: pageName,
+                    icon: pageIcon,
+                    id: pageData.id,
+                  }}
+                  open={isEditPageOpen}
+                />
               </PopoverContent>
             )}
           </ClickOutsideProvider>

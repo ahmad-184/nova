@@ -25,8 +25,6 @@ export type GetWorkspaceMemberPropsType = Parameters<
 
 export type TX = PgTransaction<
   PostgresJsQueryResultHKT,
-  typeof import("/home/ahmadreza/projects/nova/src/db/schema"),
-  ExtractTablesWithRelations<
-    typeof import("/home/ahmadreza/projects/nova/src/db/schema")
-  >
+  typeof import("@/db/schema"),
+  ExtractTablesWithRelations<typeof import("@/db/schema")>
 >;

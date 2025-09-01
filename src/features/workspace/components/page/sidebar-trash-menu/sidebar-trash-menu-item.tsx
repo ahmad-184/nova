@@ -62,28 +62,26 @@ export default function SidebarTrashMenuItem({
 
   const { onSubmit: onUpdatePage } = useUpdatePage();
   const { onSubmit: onDeletePage } = useDeletePage();
-  const { data: allPages } = useGetPages(workspaceId);
+  const { data: allPages, ids: allPagesIds } = useGetPages(workspaceId);
 
   const dispatch = useAppDispatch();
 
   const pagePath = useMemo(
-    () => getPagePath(data.id, Object.values(allPages.entities)),
-    [data.id, allPages.entities]
+    () => getPagePath(data.id, allPages),
+    [data.id, allPages]
   );
 
   const pageIdWithChildrenIds = useMemo(
-    () => [
-      data.id,
-      ...getChildrenIdsOfPage(data.id, Object.values(allPages.entities)),
-    ],
-    [data.id, allPages.ids]
+    () => [data.id, ...getChildrenIdsOfPage(data.id, allPages)],
+    [data.id, allPagesIds]
   );
 
   const handleRestore = async () => {
     if (!activeWorkspaceId) return;
 
     const shouldSetParentPageIdToNull = Boolean(
-      !!data.parentPageId && !!allPages.entities[data.parentPageId]?.inTrash
+      !!data.parentPageId &&
+        !!allPages.find(e => e.id === data.parentPageId)?.inTrash
     );
 
     dispatch(removeFromTrashAction(pageIdWithChildrenIds));
@@ -114,7 +112,7 @@ export default function SidebarTrashMenuItem({
       activePageId === data.id &&
       pageIdWithChildrenIds.includes(activePageId)
     ) {
-      const findAPageThatIsNotInTrash = Object.values(allPages.entities).find(
+      const findAPageThatIsNotInTrash = allPages.find(
         e =>
           !pageIdWithChildrenIds.includes(e.id) &&
           !e.inTrash &&

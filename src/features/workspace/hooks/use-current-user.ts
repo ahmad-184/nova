@@ -10,7 +10,7 @@ import {
 } from "../redux/slices/user/api";
 import { getErrorInfo } from "@/helpers/error";
 
-export const useUser = () => {
+export default function useCurrentUser() {
   const router = useRouter();
 
   const {
@@ -45,4 +45,4 @@ export const useUser = () => {
     signOut,
     error,
   };
-};
+}

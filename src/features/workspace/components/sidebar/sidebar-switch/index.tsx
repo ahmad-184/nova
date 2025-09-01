@@ -12,7 +12,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/shared/components/ui/sidebar";
-import { useUser } from "@/features/workspace/hooks/use-user";
+import useCurrentUser from "@/features/workspace/hooks/use-current-user";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 import useGetWorkspaces from "@/features/workspace/hooks/use-get-workspaces";
 import SidebarSwitchButton from "./sidebar-switch-button";
@@ -22,7 +22,7 @@ export default function SidebarSwitch() {
   const [isOpen, setIsOpen] = useState(false);
 
   const { loading } = useGetWorkspaces();
-  const { loading: userLoading } = useUser();
+  const { loading: userLoading } = useCurrentUser();
 
   const toggleOpen = () => {
     if (loading || userLoading) return;

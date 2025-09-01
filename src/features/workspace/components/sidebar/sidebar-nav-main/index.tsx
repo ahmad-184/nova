@@ -14,11 +14,11 @@ import {
 } from "@/shared/components/ui/tooltip";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 import useGetWorkspaces from "@/features/workspace/hooks/use-get-workspaces";
-import { useUser } from "../../../hooks/use-user";
+import useCurrentUser from "../../../hooks/use-current-user";
 
 export default function SidebarNavMain() {
   const { loading } = useGetWorkspaces();
-  const { loading: userLoading } = useUser();
+  const { loading: userLoading } = useCurrentUser();
 
   if (loading || userLoading)
     return (

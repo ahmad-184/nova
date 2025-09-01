@@ -13,7 +13,7 @@ import {
 } from "@/shared/components/ui/form";
 import { Input } from "@/shared/components/ui/input";
 import LoaderButton from "@/shared/components/loader-button";
-import { useUser } from "@/features/workspace/hooks/use-user";
+import useCurrentUser from "@/features/workspace/hooks/use-current-user";
 import { useCreateWorkspace } from "../../../hooks/use-create-workspace";
 import Picker from "../../picker";
 
@@ -22,7 +22,7 @@ type Props = {
 };
 
 export default function CreateWorkspaceForm({ onClose }: Props) {
-  const { user } = useUser();
+  const { user } = useCurrentUser();
   const { form, error, loading, onSubmit } = useCreateWorkspace({
     callback() {
       onClose?.();

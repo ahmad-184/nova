@@ -65,7 +65,7 @@ export default function MenuActions({
 
   const dispatch = useAppDispatch();
 
-  const { data: allPages } = useGetPages(activeWorkspaceId);
+  const { data: allPages, ids: allPagesIds } = useGetPages(activeWorkspaceId);
 
   const { onSubmit: onUpdatePage } = useUpdatePage();
   const { onSubmit: onCreatePage } = useCreatePage();
@@ -73,11 +73,8 @@ export default function MenuActions({
   const timer = useRef<NodeJS.Timeout | null>(null);
 
   const pageChildrenIds = useMemo(
-    () => [
-      page.id,
-      ...getChildrenIdsOfPage(page.id, Object.values(allPages.entities)),
-    ],
-    [page.id, allPages.ids]
+    () => [page.id, ...getChildrenIdsOfPage(page.id, allPages)],
+    [page.id, allPagesIds]
   );
 
   const handleToTrash = () => {
@@ -98,7 +95,7 @@ export default function MenuActions({
     dispatch(addToTrashAction(pageChildrenIds));
 
     if (activePageId && pageChildrenIds.includes(activePageId)) {
-      const findAPageThatIsNotInTrash = Object.values(allPages.entities).find(
+      const findAPageThatIsNotInTrash = allPages.find(
         e => !pageChildrenIds.includes(e.id) && !e.inTrash && e.id !== page.id
       );
       if (findAPageThatIsNotInTrash)

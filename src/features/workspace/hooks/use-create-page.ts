@@ -7,13 +7,13 @@ import { createUUID } from "@/utils/uuid";
 import { PageInsert, pageInsertSchema } from "@/db/schema";
 import { getErrorInfo } from "@/helpers/error";
 import { useCreatePageMutation } from "../redux/slices/page/api";
-import { useUser } from "./use-user";
+import useCurrentUser from "./use-current-user";
 
 export const useCreatePage = () => {
   const [createPage, { error: mutationError, isLoading: loading }] =
     useCreatePageMutation();
 
-  const { user } = useUser();
+  const { user } = useCurrentUser();
 
   const onSubmit = (values: PageInsert) => {
     if (!user) return;

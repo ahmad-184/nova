@@ -9,7 +9,7 @@ import {
 import { useSidebar } from "@/shared/components/ui/sidebar";
 import { useCreatePage } from "@/features/workspace/hooks/use-create-page";
 import { useAppSelector } from "@/features/workspace/redux/store";
-import { useUser } from "../../../hooks/use-user";
+import useCurrentUser from "../../../hooks/use-current-user";
 import WorkspaceIcon from "../../workspace/workspace-icon";
 
 export default function SidebarSwitchButton() {
@@ -20,7 +20,7 @@ export default function SidebarSwitchButton() {
     store => store.workspace.activeWorkspace
   );
 
-  const { user } = useUser();
+  const { user } = useCurrentUser();
   const { toggleSidebar } = useSidebar();
 
   const { onSubmit } = useCreatePage();
